@@ -1,0 +1,28 @@
+# Docker Compose สำหรับตอนพัฒนา (dev)
+# รันเฉพาะ Postgres ส่วน api/web รันจากเครื่องด้วย cargo run / npm run dev
+#
+# วิธีใช้:
+#   docker compose -f docker-compose.dev.yml up -d   # เปิด Postgres
+#   docker compose -f docker-compose.dev.yml down     # ปิด
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: gmt-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: gmt
+      POSTGRES_PASSWORD: gmt_dev_password
+      POSTGRES_DB: gmt_solar
+    ports:
+      - "5432:5432"
+    volumes:
+      - gmt_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gmt -d gmt_solar"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  gmt_pg_data:

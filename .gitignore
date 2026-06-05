@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+
+# Rust build artifacts
+api/target/
+
+# Node / Vite
+web/node_modules/
+web/dist/
+web/dist-ssr/
+
+# Secrets — never commit
+api/.env
+*.local
+
+# Editor
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Claude Code local settings (เก็บเฉพาะของ repo ไม่ใช่ local)
+.claude/settings.local.json
+
+# Qodo
+.qodo/
