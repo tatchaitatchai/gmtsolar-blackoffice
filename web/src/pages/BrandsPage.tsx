@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react'
 import { api } from '../lib/api'
+import { usePagination } from '../lib/usePagination'
+import Pagination from '../components/ui/Pagination'
+
+const PAGE_SIZE = 10
 
 type Brand = { id: string; name: string }
 
@@ -9,6 +13,8 @@ export default function BrandsPage() {
   const [editId, setEditId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
   const [error, setError] = useState('')
+
+  const { paged, page, setPage, total } = usePagination(items, PAGE_SIZE)
 
   const load = () => api.get<Brand[]>('/brands').then(setItems)
 
@@ -73,7 +79,7 @@ export default function BrandsPage() {
         {items.length === 0 && (
           <p className="text-sm text-gray-400 p-4 text-center">ยังไม่มีข้อมูล</p>
         )}
-        {items.map((item) => (
+        {paged.map((item) => (
           <div key={item.id} className="flex items-center gap-3 px-4 py-3">
             {editId === item.id ? (
               <>
@@ -95,6 +101,12 @@ export default function BrandsPage() {
           </div>
         ))}
       </div>
+
+      {total > PAGE_SIZE && (
+        <div className="mt-4 flex justify-center">
+          <Pagination currentPage={page} total={total} pageSize={PAGE_SIZE} onChange={setPage} />
+        </div>
+      )}
     </div>
   )
 }

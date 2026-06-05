@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react'
-import { Button, Input, Card, Dialog, Select, toast, Notification } from '@/components/ui'
-import { HiOutlinePencil, HiOutlineTrash, HiOutlinePlus } from 'react-icons/hi'
+import { useEffect, useState, useMemo } from 'react'
+import { Button, Input, Card, Dialog, Select, toast, Notification, Pagination } from '@/components/ui'
+import { HiOutlinePencil, HiOutlineTrash, HiOutlinePlus, HiOutlineSearch } from 'react-icons/hi'
 import AxiosBase from '@/services/axios/AxiosBase'
+import { usePagination } from '@/lib/usePagination'
+
+const PAGE_SIZE = 15
 
 type Category = { id: string; name: string }
 type Brand = { id: string; name: string }
@@ -37,6 +40,21 @@ export default function ProductsPage() {
     const [editItem, setEditItem] = useState<ProductDetail | null>(null)
     const [showForm, setShowForm] = useState(false)
     const [deleteTarget, setDeleteTarget] = useState<ProductDetail | null>(null)
+
+    const [search, setSearch] = useState('')
+    const [catFilter, setCatFilter] = useState('')
+    const [brandFilter, setBrandFilter] = useState('')
+
+    const filteredItems = useMemo(() => {
+        const q = search.toLowerCase()
+        return items.filter((item) =>
+            (!q || item.name.toLowerCase().includes(q) || item.model.toLowerCase().includes(q)) &&
+            (!catFilter || item.category_id === catFilter) &&
+            (!brandFilter || item.brand_id === brandFilter)
+        )
+    }, [items, search, catFilter, brandFilter])
+
+    const { paged, page, setPage, total } = usePagination(filteredItems, PAGE_SIZE)
 
     const load = async () => {
         const res = await AxiosBase.get<ProductDetail[]>('/products')
@@ -169,16 +187,52 @@ export default function ProductsPage() {
     )
 
     return (
-        <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
+        <div className="p-4 md:p-6">
+            <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold">วัสดุ/อุปกรณ์</h2>
                 <Button variant="solid" icon={<HiOutlinePlus />} onClick={() => { setForm(emptyForm); setShowForm(true) }}>
                     เพิ่มวัสดุ/อุปกรณ์
                 </Button>
             </div>
 
-            <Card>
-                <table className="w-full">
+            <Card className="mb-4">
+                <div className="flex flex-wrap gap-3">
+                    <Input
+                        className="flex-1 min-w-40"
+                        prefix={<HiOutlineSearch />}
+                        placeholder="ค้นหาชื่อหรือรุ่น..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                    <div className="flex-1 min-w-36">
+                        <Select
+                            options={catOptions}
+                            value={catOptions.find((o) => o.value === catFilter) ?? null}
+                            onChange={(opt) => setCatFilter(opt?.value ?? '')}
+                            placeholder="ทุกหมวดหมู่"
+                            isClearable
+                            isSearchable
+                        />
+                    </div>
+                    <div className="flex-1 min-w-36">
+                        <Select
+                            options={brandOptions}
+                            value={brandOptions.find((o) => o.value === brandFilter) ?? null}
+                            onChange={(opt) => setBrandFilter(opt?.value ?? '')}
+                            placeholder="ทุกแบรนด์"
+                            isClearable
+                            isSearchable
+                        />
+                    </div>
+                </div>
+                {filteredItems.length < items.length && (
+                    <p className="text-sm text-gray-400 mt-3">แสดง {filteredItems.length} จาก {items.length} รายการ</p>
+                )}
+            </Card>
+
+            <Card bodyClass="p-0">
+                <div className="overflow-x-auto">
+                <table className="w-full min-w-140">
                     <thead>
                         <tr className="border-b border-gray-200 dark:border-gray-700">
                             <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">ชื่อวัสดุ/อุปกรณ์</th>
@@ -192,7 +246,7 @@ export default function ProductsPage() {
                         {items.length === 0 && (
                             <tr><td colSpan={5} className="text-center py-8 text-gray-400">ยังไม่มีข้อมูล</td></tr>
                         )}
-                        {items.map((item) => (
+                        {paged.map((item) => (
                             <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30">
                                 <td className="py-3 px-4">
                                     <p className="font-medium">{item.name}</p>
@@ -215,7 +269,14 @@ export default function ProductsPage() {
                         ))}
                     </tbody>
                 </table>
+                </div>
             </Card>
+
+            {total > PAGE_SIZE && (
+                <div className="mt-4 flex justify-center">
+                    <Pagination currentPage={page} total={total} pageSize={PAGE_SIZE} onChange={setPage} />
+                </div>
+            )}
 
             <Dialog isOpen={showForm} onClose={() => setShowForm(false)} onRequestClose={() => setShowForm(false)}>
                 <h5 className="mb-4 font-semibold">เพิ่มวัสดุ/อุปกรณ์ใหม่</h5>

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Button, Input, Card, Select, Dialog, toast, Notification } from '@/components/ui'
-import { HiOutlineTrash, HiOutlinePlus } from 'react-icons/hi'
+import { HiOutlineTrash, HiOutlinePlus, HiOutlineSearch } from 'react-icons/hi'
 import { PiCheckCircleDuotone } from 'react-icons/pi'
 import AxiosBase from '@/services/axios/AxiosBase'
 
@@ -35,6 +35,12 @@ export default function PricesPage() {
     const [form, setForm] = useState<Form>(emptyForm)
     const [deleteTarget, setDeleteTarget] = useState<PriceEntry | null>(null)
     const [showForm, setShowForm] = useState(false)
+    const [supplierSearch, setSupplierSearch] = useState('')
+
+    const filteredEntries = useMemo(() => {
+        const q = supplierSearch.toLowerCase()
+        return !q ? entries : entries.filter((e) => e.supplier_name.toLowerCase().includes(q))
+    }, [entries, supplierSearch])
 
     useEffect(() => {
         AxiosBase.get<ProductOption[]>('/products').then((r) => setProducts(r.data))
@@ -47,9 +53,10 @@ export default function PricesPage() {
     }
 
     const handleSelectProduct = (opt: { value: string; label: string } | null) => {
-        if (!opt) { setSelectedProduct(null); setEntries([]); return }
+        if (!opt) { setSelectedProduct(null); setEntries([]); setSupplierSearch(''); return }
         const p = products.find((x) => x.id === opt.value) ?? null
         setSelectedProduct(p)
+        setSupplierSearch('')
         if (p) loadPrices(p.id)
     }
 
@@ -91,7 +98,7 @@ export default function PricesPage() {
     const supplierOptions = suppliers.map((s) => ({ value: s.id, label: s.name }))
 
     return (
-        <div className="p-6">
+        <div className="p-4 md:p-6">
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold">เปรียบเทียบราคา</h2>
                 {selectedProduct && (
@@ -116,17 +123,28 @@ export default function PricesPage() {
 
             {selectedProduct && (
                 <Card>
-                    <div className="mb-4 flex items-center gap-2 text-sm text-gray-500">
-                        <span>หน่วยใช้งาน: <strong className="text-gray-800">{selectedProduct.use_unit}</strong></span>
-                        {selectedProduct.purchase_unit && (
-                            <>
-                                <span>·</span>
-                                <span>ซื้อเป็น: <strong className="text-gray-800">{selectedProduct.purchase_unit}</strong> ({selectedProduct.units_per_purchase} {selectedProduct.use_unit}/{selectedProduct.purchase_unit})</span>
-                            </>
-                        )}
+                    <div className="mb-4 flex flex-wrap items-center gap-3">
+                        <div className="flex items-center gap-2 text-sm text-gray-500 flex-1 min-w-48">
+                            <span>หน่วยใช้งาน: <strong className="text-gray-800">{selectedProduct.use_unit}</strong></span>
+                            {selectedProduct.purchase_unit && (
+                                <>
+                                    <span>·</span>
+                                    <span>ซื้อเป็น: <strong className="text-gray-800">{selectedProduct.purchase_unit}</strong> ({selectedProduct.units_per_purchase} {selectedProduct.use_unit}/{selectedProduct.purchase_unit})</span>
+                                </>
+                            )}
+                        </div>
+                        <div className="w-52 shrink-0">
+                            <Input
+                                prefix={<HiOutlineSearch />}
+                                placeholder="ค้นหาซัพพลายเออร์..."
+                                value={supplierSearch}
+                                onChange={(e) => setSupplierSearch(e.target.value)}
+                            />
+                        </div>
                     </div>
 
-                    <table className="w-full">
+                    <div className="overflow-x-auto">
+                    <table className="w-full min-w-160">
                         <thead>
                             <tr className="border-b border-gray-200 dark:border-gray-700">
                                 <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">ซัพพลายเออร์</th>
@@ -146,7 +164,10 @@ export default function PricesPage() {
                             {entries.length === 0 && (
                                 <tr><td colSpan={6} className="text-center py-8 text-gray-400">ยังไม่มีราคา — กด "+ เพิ่มราคา" เพื่อเริ่ม</td></tr>
                             )}
-                            {entries.map((entry) => (
+                            {entries.length > 0 && filteredEntries.length === 0 && (
+                                <tr><td colSpan={6} className="text-center py-8 text-gray-400">ไม่พบซัพพลายเออร์ที่ค้นหา</td></tr>
+                            )}
+                            {filteredEntries.map((entry) => (
                                 <tr
                                     key={entry.id}
                                     className={entry.is_cheapest
@@ -174,6 +195,7 @@ export default function PricesPage() {
                             ))}
                         </tbody>
                     </table>
+                    </div>
                 </Card>
             )}
 

@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react'
 import { api } from '../lib/api'
+import { usePagination } from '../lib/usePagination'
+import Pagination from '../components/ui/Pagination'
+
+const PAGE_SIZE = 10
 
 type Supplier = { id: string; name: string; contact: string | null; note: string | null }
 
@@ -12,6 +16,8 @@ export default function SuppliersPage() {
   const [editId, setEditId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState<Form>(emptyForm)
   const [error, setError] = useState('')
+
+  const { paged, page, setPage, total } = usePagination(items, PAGE_SIZE)
 
   const load = () => api.get<Supplier[]>('/suppliers').then(setItems)
 
@@ -91,7 +97,7 @@ export default function SuppliersPage() {
 
       <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
         {items.length === 0 && <p className="text-sm text-gray-400 p-4 text-center">ยังไม่มีข้อมูล</p>}
-        {items.map((item) => (
+        {paged.map((item) => (
           <div key={item.id} className="px-4 py-3">
             {editId === item.id ? (
               <div className="space-y-3">
@@ -119,6 +125,12 @@ export default function SuppliersPage() {
           </div>
         ))}
       </div>
+
+      {total > PAGE_SIZE && (
+        <div className="mt-4 flex justify-center">
+          <Pagination currentPage={page} total={total} pageSize={PAGE_SIZE} onChange={setPage} />
+        </div>
+      )}
     </div>
   )
 }

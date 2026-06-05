@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Button, Input, Card, Select, Dialog, toast, Notification } from '@/components/ui'
-import { HiOutlineTrash, HiOutlinePlus, HiOutlinePencil, HiOutlineCalculator } from 'react-icons/hi'
+import { HiOutlineTrash, HiOutlinePlus, HiOutlinePencil, HiOutlineCalculator, HiOutlineSearch } from 'react-icons/hi'
 import AxiosBase from '@/services/axios/AxiosBase'
 
 type Project = {
@@ -86,6 +86,17 @@ export default function ProjectsPage() {
 
     const [costData, setCostData] = useState<ProjectCost | null>(null)
     const [showCost, setShowCost] = useState(false)
+
+    const [search, setSearch] = useState('')
+
+    const filteredProjects = useMemo(() => {
+        const q = search.toLowerCase()
+        return !q ? projects : projects.filter((p) =>
+            p.name.toLowerCase().includes(q) ||
+            (p.customer_name ?? '').toLowerCase().includes(q) ||
+            (p.address ?? '').toLowerCase().includes(q)
+        )
+    }, [projects, search])
 
     const loadProjects = async () => {
         const r = await AxiosBase.get<Project[]>('/projects')
@@ -230,8 +241,8 @@ export default function ProjectsPage() {
     const selectedProductOpt = addProduct ? productOptions.find((o) => o.value === addProduct.id) ?? null : null
 
     return (
-        <div className="p-6 flex gap-6 h-full">
-            <div className="w-72 shrink-0 flex flex-col gap-4">
+        <div className="p-4 md:p-6 flex flex-col md:flex-row gap-6">
+            <div className="w-full md:w-72 shrink-0 flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                     <h2 className="text-xl font-bold">โปรเจกต์</h2>
                     <Button size="sm" variant="solid" icon={<HiOutlinePlus />} onClick={handleOpenCreate}>
@@ -239,11 +250,20 @@ export default function ProjectsPage() {
                     </Button>
                 </div>
 
-                {projects.length === 0 && (
-                    <p className="text-sm text-gray-400 mt-4">ยังไม่มีโปรเจกต์</p>
+                <Input
+                    prefix={<HiOutlineSearch />}
+                    placeholder="ค้นหาโปรเจกต์ / ลูกค้า..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+
+                {filteredProjects.length === 0 && (
+                    <p className="text-sm text-gray-400 mt-2">
+                        {projects.length === 0 ? 'ยังไม่มีโปรเจกต์' : 'ไม่พบ'}
+                    </p>
                 )}
 
-                {projects.map((proj) => (
+                {filteredProjects.map((proj) => (
                     <Card
                         key={proj.id}
                         className={`cursor-pointer transition-all ${selected?.id === proj.id ? 'ring-2 ring-indigo-500' : 'hover:shadow-md'}`}
@@ -286,7 +306,7 @@ export default function ProjectsPage() {
                     </div>
                 ) : (
                     <div className="flex flex-col gap-4">
-                        <div className="flex items-start justify-between">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                             <div>
                                 <h3 className="text-lg font-bold">{selected.name}</h3>
                                 {selected.customer_name && (
@@ -296,7 +316,7 @@ export default function ProjectsPage() {
                                     <p className="text-sm text-gray-500">📍 {selected.address}</p>
                                 )}
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 shrink-0">
                                 <Button
                                     variant="default"
                                     icon={<HiOutlineCalculator />}
@@ -321,11 +341,12 @@ export default function ProjectsPage() {
                             </div>
                         </div>
 
-                        <Card>
+                        <Card bodyClass="p-0">
                             {selected.items.length === 0 ? (
                                 <p className="text-center py-8 text-gray-400">ยังไม่มีรายการ — กด "+ เพิ่มรายการ" เพื่อเริ่ม</p>
                             ) : (
-                                <table className="w-full">
+                                <div className="overflow-x-auto">
+                                <table className="w-full min-w-120">
                                     <thead>
                                         <tr className="border-b border-gray-200 dark:border-gray-700">
                                             <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">วัสดุ/อุปกรณ์</th>
@@ -371,6 +392,7 @@ export default function ProjectsPage() {
                                         ))}
                                     </tbody>
                                 </table>
+                                </div>
                             )}
                         </Card>
                     </div>
@@ -490,6 +512,7 @@ export default function ProjectsPage() {
                     <>
                         <h5 className="mb-1 font-semibold">ต้นทุนโปรเจกต์: {costData.project_name}</h5>
                         <p className="text-xs text-gray-400 mb-4">ใช้ราคา ณ วันที่เพิ่มรายการ (snapshot)</p>
+                        <div className="overflow-y-auto max-h-[55vh]">
                         <table className="w-full mb-4">
                             <thead>
                                 <tr className="border-b border-gray-200 dark:border-gray-700">
@@ -537,7 +560,8 @@ export default function ProjectsPage() {
                                 </tr>
                             </tfoot>
                         </table>
-                        <div className="flex justify-end">
+                        </div>
+                        <div className="flex justify-end mt-4">
                             <Button onClick={() => setShowCost(false)}>ปิด</Button>
                         </div>
                     </>

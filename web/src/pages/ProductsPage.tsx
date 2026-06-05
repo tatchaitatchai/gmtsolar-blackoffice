@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react'
 import { api } from '../lib/api'
+import { usePagination } from '../lib/usePagination'
+import Pagination from '../components/ui/Pagination'
+
+const PAGE_SIZE = 15
 
 type Category = { id: string; name: string }
 type Brand = { id: string; name: string }
@@ -23,6 +27,8 @@ export default function ProductsPage() {
   const [form, setForm] = useState<Form>(emptyForm)
   const [editId, setEditId] = useState<string | null>(null)
   const [error, setError] = useState('')
+
+  const { paged, page, setPage, total } = usePagination(items, PAGE_SIZE)
 
   const load = () => api.get<ProductDetail[]>('/products').then(setItems)
 
@@ -178,7 +184,7 @@ export default function ProductsPage() {
             {items.length === 0 && (
               <tr><td colSpan={5} className="text-center text-gray-400 py-8">ยังไม่มีวัสดุ/อุปกรณ์</td></tr>
             )}
-            {items.map((item) => (
+            {paged.map((item) => (
               <tr key={item.id} className="hover:bg-gray-50">
                 <td className="px-4 py-3">
                   <p className="font-medium text-gray-800">{item.name}</p>
@@ -200,6 +206,12 @@ export default function ProductsPage() {
           </tbody>
         </table>
       </div>
+
+      {total > PAGE_SIZE && (
+        <div className="mt-4 flex justify-center">
+          <Pagination currentPage={page} total={total} pageSize={PAGE_SIZE} onChange={setPage} />
+        </div>
+      )}
     </div>
   )
 }

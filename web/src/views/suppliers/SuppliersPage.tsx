@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react'
-import { Button, Input, Card, Dialog, toast, Notification } from '@/components/ui'
-import { HiOutlinePencil, HiOutlineTrash, HiOutlinePlus } from 'react-icons/hi'
+import { useEffect, useState, useMemo } from 'react'
+import { Button, Input, Card, Dialog, toast, Notification, Pagination } from '@/components/ui'
+import { HiOutlinePencil, HiOutlineTrash, HiOutlinePlus, HiOutlineSearch } from 'react-icons/hi'
 import AxiosBase from '@/services/axios/AxiosBase'
+import { usePagination } from '@/lib/usePagination'
+
+const PAGE_SIZE = 10
 
 type Supplier = { id: string; name: string; contact: string | null; note: string | null }
 type Form = { name: string; contact: string; note: string }
@@ -16,6 +19,17 @@ export default function SuppliersPage() {
     const [editItem, setEditItem] = useState<Supplier | null>(null)
     const [editForm, setEditForm] = useState<Form>(empty)
     const [deleteTarget, setDeleteTarget] = useState<Supplier | null>(null)
+
+    const [search, setSearch] = useState('')
+
+    const filteredItems = useMemo(() => {
+        const q = search.toLowerCase()
+        return !q ? items : items.filter((item) =>
+            item.name.toLowerCase().includes(q) || (item.contact ?? '').toLowerCase().includes(q)
+        )
+    }, [items, search])
+
+    const { paged, page, setPage, total } = usePagination(filteredItems, PAGE_SIZE)
 
     const load = async () => {
         const res = await AxiosBase.get<Supplier[]>('/suppliers')
@@ -70,10 +84,10 @@ export default function SuppliersPage() {
     )
 
     return (
-        <div className="p-6">
+        <div className="p-4 md:p-6">
             <h2 className="text-xl font-bold mb-6">ซัพพลายเออร์</h2>
 
-            <Card className="mb-6">
+            <Card className="mb-4">
                 <form onSubmit={handleCreate} className="space-y-4">
                     <div className="flex flex-wrap gap-4">
                         <F label="ชื่อ *" value={form.name} onChange={(v) => setForm({ ...form, name: v })} placeholder="ชื่อร้าน / บริษัท" />
@@ -84,10 +98,22 @@ export default function SuppliersPage() {
                         <Button type="submit" variant="solid" disabled={!form.name} icon={<HiOutlinePlus />}>เพิ่ม</Button>
                     </div>
                 </form>
+                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                    <Input
+                        prefix={<HiOutlineSearch />}
+                        placeholder="ค้นหาชื่อร้าน / เบอร์..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                    {filteredItems.length < items.length && (
+                        <p className="text-sm text-gray-400 mt-2">แสดง {filteredItems.length} จาก {items.length} รายการ</p>
+                    )}
+                </div>
             </Card>
 
-            <Card>
-                <table className="w-full">
+            <Card bodyClass="p-0">
+                <div className="overflow-x-auto">
+                <table className="w-full min-w-120">
                     <thead>
                         <tr className="border-b border-gray-200 dark:border-gray-700">
                             <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">ชื่อ</th>
@@ -100,7 +126,7 @@ export default function SuppliersPage() {
                         {items.length === 0 && (
                             <tr><td colSpan={4} className="text-center py-8 text-gray-400">ยังไม่มีข้อมูล</td></tr>
                         )}
-                        {items.map((item) => (
+                        {paged.map((item) => (
                             <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30">
                                 <td className="py-3 px-4 font-medium">{item.name}</td>
                                 <td className="py-3 px-4 text-gray-500">{item.contact ?? '—'}</td>
@@ -115,7 +141,14 @@ export default function SuppliersPage() {
                         ))}
                     </tbody>
                 </table>
+                </div>
             </Card>
+
+            {total > PAGE_SIZE && (
+                <div className="mt-4 flex justify-center">
+                    <Pagination currentPage={page} total={total} pageSize={PAGE_SIZE} onChange={setPage} />
+                </div>
+            )}
 
             <Dialog isOpen={!!editItem} onClose={() => setEditItem(null)} onRequestClose={() => setEditItem(null)}>
                 <h5 className="mb-4 font-semibold">แก้ไขซัพพลายเออร์</h5>
