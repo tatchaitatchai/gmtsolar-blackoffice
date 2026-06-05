@@ -1,0 +1,91 @@
+import {
+    NAV_ITEM_TYPE_TITLE,
+    NAV_ITEM_TYPE_ITEM,
+} from '@/constants/navigation.constant'
+import type { NavigationTree } from '@/@types/navigation'
+
+const navigationConfig: NavigationTree[] = [
+    {
+        key: 'masterData',
+        path: '',
+        title: 'ข้อมูลหลัก',
+        translateKey: '',
+        icon: '',
+        type: NAV_ITEM_TYPE_TITLE,
+        authority: [],
+        subMenu: [
+            {
+                key: 'products',
+                path: '/products',
+                title: 'วัสดุ อุปกรณ์',
+                translateKey: '',
+                icon: 'products',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [],
+                subMenu: [],
+            },
+            {
+                key: 'categories',
+                path: '/categories',
+                title: 'หมวดหมู่',
+                translateKey: '',
+                icon: 'categories',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [],
+                subMenu: [],
+            },
+            {
+                key: 'brands',
+                path: '/brands',
+                title: 'แบรนด์',
+                translateKey: '',
+                icon: 'brands',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [],
+                subMenu: [],
+            },
+            {
+                key: 'suppliers',
+                path: '/suppliers',
+                title: 'ซัพพลายเออร์',
+                translateKey: '',
+                icon: 'suppliers',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [],
+                subMenu: [],
+            },
+            {
+                key: 'prices',
+                path: '/prices',
+                title: 'เปรียบเทียบราคา',
+                translateKey: '',
+                icon: 'prices',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [],
+                subMenu: [],
+            },
+            {
+                key: 'packages',
+                path: '/packages',
+                title: 'แพ็กเกจ',
+                translateKey: '',
+                icon: 'packages',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [],
+                subMenu: [],
+            },
+            {
+                key: 'projects',
+                path: '/projects',
+                title: 'โปรเจกต์',
+                translateKey: '',
+                icon: 'projects',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [],
+                subMenu: [],
+            },
+        ],
+    },
+]
+
+export default navigationConfig

@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT pi.id, pi.product_id, p.name AS product_name, p.model AS product_model,\n                  p.use_unit, pi.quantity\n           FROM package_items pi\n           JOIN products p ON p.id = pi.product_id\n           WHERE pi.package_id = $1\n           ORDER BY p.name",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "product_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "product_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "product_model",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "use_unit",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "quantity",
+        "type_info": "Numeric"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "2cff54109f721e863fa69aab93a0b99f89c51dc5e49f0146957d6a182e29dcc3"
+}

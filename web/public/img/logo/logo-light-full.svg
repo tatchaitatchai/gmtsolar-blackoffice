@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 48">
+  <!-- Sun icon -->
+  <circle cx="24" cy="24" r="9" fill="#F59E0B"/>
+  <line x1="24" y1="5" x2="24" y2="12" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="24" y1="36" x2="24" y2="43" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="5" y1="24" x2="12" y2="24" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="36" y1="24" x2="43" y2="24" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="9.4" y1="9.4" x2="14.6" y2="14.6" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="33.4" y1="33.4" x2="38.6" y2="38.6" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="38.6" y1="9.4" x2="33.4" y2="14.6" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="14.6" y1="33.4" x2="9.4" y2="38.6" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- GMT Solar text -->
+  <text x="54" y="31" font-family="'Segoe UI', Arial, sans-serif" font-size="18" font-weight="700" fill="#1F2937">GMT</text>
+  <text x="100" y="31" font-family="'Segoe UI', Arial, sans-serif" font-size="18" font-weight="400" fill="#F59E0B"> Solar</text>
+</svg>

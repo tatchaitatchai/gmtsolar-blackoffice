@@ -1,0 +1,13 @@
+{
+  "name": "gmt-solar",
+  "private": true,
+  "scripts": {
+    "dev": "npm run clear-ports && concurrently -n api,web -c magenta,cyan \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "cd api && source $HOME/.cargo/env && cargo watch -c -x run",
+    "dev:web": "cd web && npm run dev",
+    "clear-ports": "lsof -ti:8088,5173,5174 | xargs kill -9 2>/dev/null; true"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}

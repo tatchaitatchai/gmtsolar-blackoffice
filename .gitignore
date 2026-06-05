@@ -5,6 +5,7 @@
 api/target/
 
 # Node / Vite
+node_modules/
 web/node_modules/
 web/dist/
 web/dist-ssr/

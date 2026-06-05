@@ -1,0 +1,45 @@
+services:
+  gmt-solar-db:
+    image: postgres:16-alpine
+    container_name: gmt-solar-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: gmt
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: gmt_solar
+    volumes:
+      - gmt_solar_pgdata:/var/lib/postgresql/data
+    networks:
+      - app_appnet
+
+  gmt-solar-api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: gmt-solar-api
+    restart: unless-stopped
+    depends_on:
+      - gmt-solar-db
+    environment:
+      DATABASE_URL: postgres://gmt:${DB_PASSWORD}@gmt-solar-db:5432/gmt_solar
+      JWT_SECRET: ${JWT_SECRET}
+      HOST: 0.0.0.0
+      PORT: 8088
+    networks:
+      - app_appnet
+
+  gmt-solar-web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: gmt-solar-web
+    restart: unless-stopped
+    networks:
+      - app_appnet
+
+volumes:
+  gmt_solar_pgdata:
+
+networks:
+  app_appnet:
+    external: true

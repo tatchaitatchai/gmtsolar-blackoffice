@@ -1,0 +1,84 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE products\n           SET category_id=$1, brand_id=$2, name=$3, model=$4, spec=$5,\n               use_unit=$6, purchase_unit=$7, units_per_purchase=$8\n           WHERE id=$9\n           RETURNING id, category_id, brand_id, name, model, spec, use_unit, purchase_unit, units_per_purchase, created_at",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "category_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "brand_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "model",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "spec",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 6,
+        "name": "use_unit",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "purchase_unit",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "units_per_purchase",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Jsonb",
+        "Text",
+        "Text",
+        "Numeric",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "842e12a944471fc11e7f628ac284571965d9c12565050e16b75483e12eb9d0e0"
+}

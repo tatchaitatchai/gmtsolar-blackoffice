@@ -14,7 +14,7 @@ Back-office system for a **solar-installation business**. Core goals:
 ## Who the user is / how to work
 
 - The user **wants to learn** — they are building this partly to study React + Rust.
-- **Explain in Thai.** Code comments in this repo are written in Thai on purpose — keep that style.
+- **Explain in Thai.** Write zero code comments — not in Thai, not in English.
 - **Work phase by phase** (see Roadmap). Build small, verify, then explain what was built before moving on.
 - The user often wants to **see the result in the browser** between phases.
 
@@ -66,24 +66,61 @@ Then open http://localhost:5173. Health check: `curl http://localhost:8088/api/h
 ```
 api/
   Cargo.toml
-  .env / .env.example        # DATABASE_URL, JWT_SECRET, PORT=8088, RUST_LOG
-  migrations/                # sqlx migrations, applied on startup (db::run_migrations)
+  .env / .env.example
+  migrations/
     0001_create_users.sql
+    0002_seed_users.sql
   src/
-    main.rs                  # bootstrap: load config, connect DB, run migrations, build router, serve
-    config.rs                # read env (.env)
-    db.rs                    # PgPool + migrations
-    error.rs                 # AppError enum -> HTTP responses (central error handling)
-    auth/ domain/ routes/ services/   # created empty, to be filled from Phase 1 on
+    main.rs          — bootstrap: config → DB → migrations → router → serve
+    config.rs        — read env vars
+    db.rs            — PgPool + run_migrations
+    error.rs         — AppError enum → HTTP responses
+    state.rs         — AppState { pool, jwt_secret }
+    auth/
+      mod.rs         — JWT Claims struct, encode_jwt, decode_jwt
+    domain/          — plain data structs, no logic, no DB, no HTTP types
+      mod.rs
+      user.rs        — User { id, email, name }
+    routes/
+      mod.rs         — Router assembly only (path → handler mapping)
+    handlers/        — parse HTTP request, call service, return response; DTOs live here
+      mod.rs
+      auth.rs        — LoginRequest, LoginResponse, login(), me()
+      health.rs      — health()
+    services/        — business logic; calls repository, returns domain structs
+      mod.rs
+      auth.rs        — login(): verify password → encode JWT → return (token, User)
+    repository/      — DB queries only; returns domain structs or raw records
+      mod.rs
+      user.rs        — find_by_email()
 web/
-  vite.config.ts             # react + tailwind plugins, /api proxy -> :8088
+  vite.config.ts     — react + tailwind plugins, /api proxy → :8088
   src/
     main.tsx
-    App.tsx                  # Phase 0 health-check page (will become the app shell)
-    index.css                # @import "tailwindcss";
-docker-compose.dev.yml       # Postgres only (dev)
-README.md                    # run instructions + phase checklist
+    App.tsx          — BrowserRouter + AuthProvider + Routes
+    index.css        — @import "tailwindcss"
+    lib/
+      api.ts         — fetch wrapper, auto-attaches JWT from localStorage
+      auth.tsx       — AuthProvider, useAuth hook
+    pages/
+      LoginPage.tsx
+docker-compose.dev.yml
 ```
+
+## Backend code structure rules
+
+```
+request → routes/ → handlers/ → services/ → repository/ → DB
+                                    ↕
+                                 domain/
+```
+
+- **`routes/`** — path-to-handler mapping only. Split into `public` (no JWT) and `protected` (JWT middleware applied via `route_layer`). No logic, no types.
+- **`handlers/`** — parse HTTP input → call one service fn → serialize response. Request/response DTOs live here. Protected handlers get `Extension<Claims>` automatically from middleware.
+- **`services/`** — business logic. Takes primitive params, calls repository, returns `domain` types or `AppError`. No Axum types.
+- **`repository/`** — DB queries only. Takes `&PgPool` + params, returns domain structs or internal records. No HTTP, no business logic.
+- **`domain/`** — plain data structs (`Serialize`/`Deserialize` allowed). No `sqlx`, no Axum, no logic.
+- **`auth/`** — JWT utilities: `encode_jwt`, `decode_jwt`, `Claims` struct, and `jwt_middleware` (validates token → injects `Claims` into request extensions).
 
 ## Data model (target — only `users` migration exists so far)
 
@@ -130,18 +167,11 @@ Packages, Projects. Mobile-first Tailwind.
 ## Roadmap / progress
 
 - [x] **Phase 0** — Scaffold + FE↔API↔DB wired + health check. **DONE & verified.**
-- [ ] **Phase 1** — Login (JWT + Argon2), seed 3 users, React Login page + token storage. **← NEXT**
-- [ ] **Phase 2** — Master data CRUD (categories, brands, products incl. bulk-unit, suppliers) + UI
+- [x] **Phase 1** — Login (JWT + Argon2), seed user, React Login page + token storage. **DONE.**
+- [ ] **Phase 2** — Master data CRUD (categories, brands, products incl. bulk-unit, suppliers) + UI. **← NEXT**
 - [ ] **Phase 3** — supplier_prices + price-per-use-unit calc + Price Compare page
 - [ ] **Phase 4** — Packages (bundle + mix + cost) + UI
 - [ ] **Phase 5** — Projects (project_items + full cost incl. cable-by-meter) + UI
 - [ ] **Phase 6** — Deploy: production docker-compose (postgres + api + web/nginx), VPS, PWA
 - [ ] **Later** — Quotation PDF
 
-## Phase 1 starting notes (for whoever picks this up)
-
-- Add migration `0002_seed_users.sql` (or seed via a small step) — 3 users with Argon2-hashed passwords. Ask the user for the 3 emails/names; use a known dev password and tell them.
-- `services/`/`auth/` modules are empty dirs — wire them into `main.rs` (`mod auth;` etc.) as you add files.
-- JWT secret comes from `config.jwt_secret` (already on `AppState`).
-- Keep the central `AppError` pattern from `error.rs`; add an `Unauthorized` path (already present).
-- Frontend: add `react-router-dom` routes, an auth context (`web/src/lib/auth.tsx`), and an API helper (`web/src/lib/api.ts`) that attaches the JWT. Replace the health-check `App.tsx` with a router + Login page, but you can keep the health badge somewhere for debugging.

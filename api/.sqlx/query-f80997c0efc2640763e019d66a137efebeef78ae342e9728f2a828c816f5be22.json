@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT sp.price, p.units_per_purchase\n           FROM supplier_prices sp\n           JOIN products p ON p.id = sp.product_id\n           WHERE sp.id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "price",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 1,
+        "name": "units_per_purchase",
+        "type_info": "Numeric"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true
+    ]
+  },
+  "hash": "f80997c0efc2640763e019d66a137efebeef78ae342e9728f2a828c816f5be22"
+}

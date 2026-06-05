@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT pi.id AS item_id, p.name AS product_name, p.model AS product_model,\n                  pi.quantity, p.use_unit, pi.unit_price_snapshot,\n                  (SELECT s2.name FROM supplier_prices sp2\n                   JOIN suppliers s2 ON s2.id = sp2.supplier_id\n                   WHERE sp2.id = pi.supplier_price_id) AS supplier_name\n           FROM project_items pi\n           JOIN products p ON p.id = pi.product_id\n           WHERE pi.project_id = $1\n           ORDER BY p.name",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "item_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "product_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "product_model",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "quantity",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 4,
+        "name": "use_unit",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "unit_price_snapshot",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 6,
+        "name": "supplier_name",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "11745be8da2d6972addc987ab89a492ee42886e4ee677b278d548491c5ac2630"
+}

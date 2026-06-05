@@ -1,8 +1,3 @@
-//! ชนิด error กลางของแอป + การแปลงเป็น HTTP response
-//!
-//! แทนที่จะให้แต่ละ handler จัดการ error เอง เรารวมไว้ที่เดียว
-//! handler คืน `Result<T, AppError>` แล้ว axum จะแปลงเป็น response ให้อัตโนมัติ
-
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
@@ -10,24 +5,21 @@ use axum::{
 };
 use serde_json::json;
 
-/// error ทุกแบบที่ handler อาจคืนออกมา
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
-    #[error("ไม่พบข้อมูลที่ต้องการ")]
+    #[error("not found")]
     NotFound,
 
-    #[error("ข้อมูลไม่ถูกต้อง: {0}")]
+    #[error("bad request: {0}")]
     BadRequest(String),
 
-    #[error("ยังไม่ได้ยืนยันตัวตน")]
+    #[error("unauthorized")]
     Unauthorized,
 
-    /// error จากฐานข้อมูล — ไม่เปิดเผยรายละเอียดให้ client
-    #[error("เกิดข้อผิดพลาดกับฐานข้อมูล")]
+    #[error("database error")]
     Database(#[from] sqlx::Error),
 
-    /// error ภายในอื่น ๆ
-    #[error("เกิดข้อผิดพลาดภายในระบบ")]
+    #[error("internal server error")]
     Internal(#[from] anyhow::Error),
 }
 
@@ -40,7 +32,6 @@ impl IntoResponse for AppError {
             AppError::Database(_) | AppError::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
         };
 
-        // log รายละเอียดจริงไว้ฝั่ง server (client เห็นแค่ข้อความสุภาพ)
         if status == StatusCode::INTERNAL_SERVER_ERROR {
             tracing::error!("internal error: {self:?}");
         }

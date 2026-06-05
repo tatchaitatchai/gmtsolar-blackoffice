@@ -1,0 +1,83 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO products (category_id, brand_id, name, model, spec, use_unit, purchase_unit, units_per_purchase)\n           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)\n           RETURNING id, category_id, brand_id, name, model, spec, use_unit, purchase_unit, units_per_purchase, created_at",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "category_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "brand_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "model",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "spec",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 6,
+        "name": "use_unit",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "purchase_unit",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "units_per_purchase",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Jsonb",
+        "Text",
+        "Text",
+        "Numeric"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "fed84f8b5215381401d74faedfea59256affb1e9cfe36c9198599dbe7e7dbec1"
+}
