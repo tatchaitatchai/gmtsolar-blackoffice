@@ -1,52 +1,53 @@
-# GMT Solar — ระบบหลังบ้านคำนวณต้นทุน
+# GMT Solar — Back-office Cost Calculator
 
-ระบบสำหรับธุรกิจติดตั้งโซลาร์: คำนวณต้นทุน จัด package, mix ข้ามยี่ห้อ,
-คำนวณสายไฟ (คิดเฉพาะเมตรที่ใช้) และเปรียบเทียบราคาแต่ละเจ้า
+Back-office system for a solar installation business: calculate costs, bundle products into packages, mix across brands, calculate cable by meters used, and compare supplier prices.
 
-## โครงสร้าง
+## Structure
 
 - `api/` — Backend: **Rust + Axum + SQLx + PostgreSQL**
-- `web/` — Frontend: **React + Vite + TypeScript + Tailwind CSS** (responsive)
-- `docker-compose.dev.yml` — Postgres สำหรับตอนพัฒนา
+- `web/` — Frontend: **React + Vite + TypeScript + Tailwind CSS** (responsive / mobile-first)
+- `docker-compose.dev.yml` — Postgres for local development
 
-## ต้องมีอะไรบ้าง
+## Prerequisites
 
-- [Rust](https://rustup.rs) (stable)
+- [Rust](https://rustup.rs) (stable via rustup)
 - Node.js 20+
 - Docker + Docker Compose
 
-## วิธีรันตอนพัฒนา (dev)
+## Running in development
 
-เปิด 3 อย่างนี้ (คนละเทอร์มินัล):
+Open 3 terminals:
 
 ```bash
-# 1) ฐานข้อมูล Postgres
+# 1) Postgres
 docker compose -f docker-compose.dev.yml up -d
 
-# 2) Backend API  (พอร์ต 8088)
+# 2) Backend API  (port 8088)
 cd api
-cp .env.example .env        # ครั้งแรกเท่านั้น
+cp .env.example .env        # first time only
 cargo run
 
-# 3) Frontend  (พอร์ต 5173)
+# 3) Frontend  (port 5173)
 cd web
-npm install                 # ครั้งแรกเท่านั้น
+npm install                 # first time only
 npm run dev
 ```
 
-จากนั้นเปิดเบราว์เซอร์ที่ **http://localhost:5173**
+Then open **http://localhost:5173**
 
-## หมายเหตุพอร์ต
+Health check: `curl http://localhost:8088/api/health` → `{"status":"ok","database":"connected"}`
 
-- API ใช้ **8088** (ไม่ใช่ 8080 เพราะเครื่องนี้มี Docker ตัวอื่นจอง 8080 อยู่)
-- Frontend เรียก `/api/*` แล้ว Vite proxy ส่งต่อไป API ให้อัตโนมัติ
+## Port notes
 
-## ความคืบหน้า (ตามแผนเป็นเฟส)
+- API runs on **8088** (not 8080 — port 8080 is occupied by another container on this machine)
+- The Vite dev server proxies `/api/*` to the API automatically
 
-- [x] **Phase 0** — วางโครง + เชื่อม FE↔API↔DB + health check
-- [ ] **Phase 1** — Login (JWT) + seed ผู้ใช้ 3 คน
-- [ ] **Phase 2** — Master data (หมวด/ยี่ห้อ/สินค้า/เจ้า)
-- [ ] **Phase 3** — ราคา + เปรียบเทียบเจ้า
-- [ ] **Phase 4** — Packages (จัดชุด + mix)
-- [ ] **Phase 5** — Projects (คำนวณต้นทุนทั้งบ้าน)
-- [ ] **Phase 6** — Deploy ขึ้น VPS
+## Roadmap
+
+- [x] **Phase 0** — Scaffold + FE↔API↔DB wired + health check
+- [ ] **Phase 1** — Login (JWT + Argon2) + seed 3 users
+- [ ] **Phase 2** — Master data CRUD (categories, brands, products, suppliers)
+- [ ] **Phase 3** — Supplier prices + price-per-use-unit + price comparison
+- [ ] **Phase 4** — Packages (bundle + mix across brands + cost)
+- [ ] **Phase 5** — Projects (full cost calculation incl. cable-by-meter)
+- [ ] **Phase 6** — Deploy to VPS (Docker Compose + nginx)
