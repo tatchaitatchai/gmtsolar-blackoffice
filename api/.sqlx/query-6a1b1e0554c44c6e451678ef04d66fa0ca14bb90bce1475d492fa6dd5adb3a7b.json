@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO project_items (project_id, product_id, supplier_price_id, quantity, unit_price_snapshot)\n           VALUES ($1, $2, $3, $4, $5)\n           RETURNING id, project_id, product_id, supplier_price_id, quantity, unit_price_snapshot",
+  "query": "INSERT INTO project_items (project_id, product_id, supplier_price_id, quantity, unit_price_snapshot)\n           VALUES ($1, $2, $3, $4, $5)\n           RETURNING id, project_id, product_id, supplier_price_id, quantity, unit_price_snapshot, markup_percent, group_id",
   "describe": {
     "columns": [
       {
@@ -32,6 +32,16 @@
         "ordinal": 5,
         "name": "unit_price_snapshot",
         "type_info": "Numeric"
+      },
+      {
+        "ordinal": 6,
+        "name": "markup_percent",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 7,
+        "name": "group_id",
+        "type_info": "Uuid"
       }
     ],
     "parameters": {
@@ -49,8 +59,10 @@
       false,
       true,
       false,
-      false
+      false,
+      false,
+      true
     ]
   },
-  "hash": "8309d30603e57609b1556a7536715ad443555007474af3c7efc4b7870f0f39a6"
+  "hash": "6a1b1e0554c44c6e451678ef04d66fa0ca14bb90bce1475d492fa6dd5adb3a7b"
 }

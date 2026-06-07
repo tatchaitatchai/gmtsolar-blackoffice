@@ -6,7 +6,7 @@ import AxiosBase from '@/services/axios/AxiosBase'
 type Package = { id: string; name: string; description: string | null; created_at: string }
 type PackageItemDetail = { id: string; product_id: string; product_name: string; product_model: string; use_unit: string; quantity: string }
 type PackageWithItems = Package & { items: PackageItemDetail[] }
-type ProductOption = { id: string; name: string; model: string; use_unit: string }
+type ProductOption = { id: string; name: string; model: string; use_unit: string; category_id: string; brand_id: string; category_name: string; brand_name: string }
 type PackageItemCost = {
     item_id: string
     product_name: string
@@ -42,6 +42,8 @@ export default function PackagesPage() {
     const [addItemProductId, setAddItemProductId] = useState('')
     const [addItemQty, setAddItemQty] = useState('')
     const [showAddItem, setShowAddItem] = useState(false)
+    const [filterCategoryId, setFilterCategoryId] = useState('')
+    const [filterBrandId, setFilterBrandId] = useState('')
     const [deleteItemTarget, setDeleteItemTarget] = useState<PackageItemDetail | null>(null)
 
     const [costData, setCostData] = useState<PackageCost | null>(null)
@@ -155,12 +157,33 @@ export default function PackagesPage() {
         }
     }
 
-    const productOptions = products.map((p) => ({
-        value: p.id,
-        label: p.model ? `${p.name} (${p.model}) — ${p.use_unit}` : `${p.name} — ${p.use_unit}`,
-    }))
+    const categoryOptions = useMemo(() => {
+        const seen = new Set<string>()
+        return products
+            .filter((p) => { if (seen.has(p.category_id)) return false; seen.add(p.category_id); return true })
+            .map((p) => ({ value: p.category_id, label: p.category_name }))
+    }, [products])
 
-    const selectedProductForAdd = productOptions.find((o) => o.value === addItemProductId) ?? null
+    const brandOptions = useMemo(() => {
+        const seen = new Set<string>()
+        return products
+            .filter((p) => { if (seen.has(p.brand_id)) return false; seen.add(p.brand_id); return true })
+            .map((p) => ({ value: p.brand_id, label: p.brand_name }))
+    }, [products])
+
+    const filteredProductOptions = useMemo(() =>
+        products
+            .filter((p) =>
+                (!filterCategoryId || p.category_id === filterCategoryId) &&
+                (!filterBrandId || p.brand_id === filterBrandId)
+            )
+            .map((p) => ({
+                value: p.id,
+                label: p.model ? `${p.name} (${p.model}) — ${p.use_unit}` : `${p.name} — ${p.use_unit}`,
+            }))
+    , [products, filterCategoryId, filterBrandId])
+
+    const selectedProductForAdd = filteredProductOptions.find((o) => o.value === addItemProductId) ?? null
 
     return (
         <div className="p-4 md:p-6 flex flex-col md:flex-row gap-6">
@@ -247,7 +270,7 @@ export default function PackagesPage() {
                                 <Button
                                     variant="solid"
                                     icon={<HiOutlinePlus />}
-                                    onClick={() => { setShowAddItem(true); setAddItemProductId(''); setAddItemQty('') }}
+                                    onClick={() => { setShowAddItem(true); setAddItemProductId(''); setAddItemQty(''); setFilterCategoryId(''); setFilterBrandId('') }}
                                 >
                                     เพิ่มรายการ
                                 </Button>
@@ -328,10 +351,34 @@ export default function PackagesPage() {
             <Dialog isOpen={showAddItem} onClose={() => setShowAddItem(false)} onRequestClose={() => setShowAddItem(false)}>
                 <h5 className="mb-4 font-semibold">เพิ่มรายการใน "{selected?.name}"</h5>
                 <form onSubmit={handleAddItem} className="space-y-4">
+                    <div className="flex gap-3">
+                        <div className="flex-1">
+                            <label className="block text-sm font-medium mb-1">ประเภท</label>
+                            <Select
+                                options={categoryOptions}
+                                value={categoryOptions.find((o) => o.value === filterCategoryId) ?? null}
+                                onChange={(opt) => { setFilterCategoryId(opt?.value ?? ''); setAddItemProductId('') }}
+                                placeholder="ทุกประเภท"
+                                isClearable
+                                isSearchable
+                            />
+                        </div>
+                        <div className="flex-1">
+                            <label className="block text-sm font-medium mb-1">แบรนด์</label>
+                            <Select
+                                options={brandOptions}
+                                value={brandOptions.find((o) => o.value === filterBrandId) ?? null}
+                                onChange={(opt) => { setFilterBrandId(opt?.value ?? ''); setAddItemProductId('') }}
+                                placeholder="ทุกแบรนด์"
+                                isClearable
+                                isSearchable
+                            />
+                        </div>
+                    </div>
                     <div>
                         <label className="block text-sm font-medium mb-1">วัสดุ/อุปกรณ์ *</label>
                         <Select
-                            options={productOptions}
+                            options={filteredProductOptions}
                             value={selectedProductForAdd}
                             onChange={(opt) => setAddItemProductId(opt?.value ?? '')}
                             placeholder="พิมพ์ชื่อเพื่อค้นหา..."
@@ -367,6 +414,7 @@ export default function PackagesPage() {
                     <>
                         <h5 className="mb-1 font-semibold">ต้นทุนแพ็กเกจ: {costData.package_name}</h5>
                         <p className="text-xs text-gray-400 mb-4">ใช้ราคาถูกสุดของแต่ละรายการ</p>
+                        <div className="overflow-y-auto max-h-[55vh]">
                         <table className="w-full mb-4">
                             <thead>
                                 <tr className="border-b border-gray-200 dark:border-gray-700">
@@ -405,7 +453,8 @@ export default function PackagesPage() {
                                 </tr>
                             </tfoot>
                         </table>
-                        <div className="flex justify-end">
+                        </div>
+                        <div className="flex justify-end mt-4">
                             <Button onClick={() => setShowCost(false)}>ปิด</Button>
                         </div>
                     </>

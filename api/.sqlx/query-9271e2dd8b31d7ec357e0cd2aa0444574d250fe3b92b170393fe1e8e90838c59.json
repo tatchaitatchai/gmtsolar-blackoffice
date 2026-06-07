@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO projects (name, customer_name, address) VALUES ($1, $2, $3) RETURNING id, name, customer_name, address, created_at",
+  "query": "INSERT INTO projects (name, customer_name, address) VALUES ($1, $2, $3) RETURNING id, name, customer_name, address, vat_percent, overhead_percent, show_overhead, qt_number, created_at",
   "describe": {
     "columns": [
       {
@@ -25,6 +25,26 @@
       },
       {
         "ordinal": 4,
+        "name": "vat_percent",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 5,
+        "name": "overhead_percent",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 6,
+        "name": "show_overhead",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 7,
+        "name": "qt_number",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
         "name": "created_at",
         "type_info": "Timestamptz"
       }
@@ -41,8 +61,12 @@
       false,
       true,
       true,
+      false,
+      false,
+      false,
+      true,
       false
     ]
   },
-  "hash": "379312c91f38bd0313826800daf8b2eca1db7f6a7293b9c3d2877c1b2814dc64"
+  "hash": "9271e2dd8b31d7ec357e0cd2aa0444574d250fe3b92b170393fe1e8e90838c59"
 }

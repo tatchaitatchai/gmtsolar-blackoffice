@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT sp.id AS supplier_price_id, sp.price, p.units_per_purchase\n           FROM supplier_prices sp\n           JOIN products p ON p.id = sp.product_id\n           WHERE sp.product_id = $1\n           ORDER BY CASE WHEN p.units_per_purchase IS NOT NULL\n                         THEN sp.price / p.units_per_purchase\n                         ELSE sp.price\n                    END ASC\n           LIMIT 1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "supplier_price_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "price",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 2,
+        "name": "units_per_purchase",
+        "type_info": "Numeric"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "c5f74fbaf80d728f27d5f253923c5fdcad9442320f79399d233b201122ce0073"
+}

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT p.id, p.category_id, c.name AS category_name,\n                  p.brand_id, b.name AS brand_name,\n                  p.name, p.model, p.spec, p.use_unit,\n                  p.purchase_unit, p.units_per_purchase, p.created_at\n           FROM products p\n           JOIN categories c ON c.id = p.category_id\n           JOIN brands b ON b.id = p.brand_id\n           ORDER BY p.name",
+  "query": "SELECT p.id, p.category_id, c.name AS category_name,\n                  p.brand_id, b.name AS brand_name,\n                  p.name, p.model, p.spec, p.use_unit,\n                  p.purchase_unit, p.units_per_purchase, p.created_at\n           FROM products p\n           JOIN categories c ON c.id = p.category_id\n           JOIN brands b ON b.id = p.brand_id\n           ORDER BY c.sort_order, p.name",
   "describe": {
     "columns": [
       {
@@ -82,5 +82,5 @@
       false
     ]
   },
-  "hash": "4ef3cb2f019bfb0d1f4dbf67449bc318b7afc40e99359136b84fd5f7d29d3a70"
+  "hash": "af382569dad96064984e1c9d85f646b9142f867a32d762c9d7ce49c1f0bf2572"
 }

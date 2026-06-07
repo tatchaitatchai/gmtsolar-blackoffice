@@ -5,4 +5,5 @@ use uuid::Uuid;
 pub struct Category {
     pub id: Uuid,
     pub name: String,
+    pub sort_order: i32,
 }

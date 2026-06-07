@@ -34,8 +34,9 @@ pub async fn find_by_id(pool: &PgPool, id: Uuid) -> Result<Option<PackageWithIte
                   p.use_unit, pi.quantity
            FROM package_items pi
            JOIN products p ON p.id = pi.product_id
+           JOIN categories c ON c.id = p.category_id
            WHERE pi.package_id = $1
-           ORDER BY p.name"#,
+           ORDER BY c.sort_order, p.name"#,
         id
     )
     .fetch_all(pool)
@@ -158,8 +159,9 @@ pub async fn find_items_for_cost(pool: &PgPool, package_id: Uuid) -> Result<Vec<
                 LIMIT 1)   AS cheapest_supplier_name
            FROM package_items pi
            JOIN products p ON p.id = pi.product_id
+           JOIN categories c ON c.id = p.category_id
            WHERE pi.package_id = $1
-           ORDER BY p.name"#,
+           ORDER BY c.sort_order, p.name"#,
         package_id
     )
     .fetch_all(pool)

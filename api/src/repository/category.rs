@@ -4,16 +4,19 @@ use uuid::Uuid;
 use crate::{domain::category::Category, error::AppError};
 
 pub async fn list(pool: &PgPool) -> Result<Vec<Category>, AppError> {
-    let rows = sqlx::query_as!(Category, "SELECT id, name FROM categories ORDER BY name")
-        .fetch_all(pool)
-        .await?;
+    let rows = sqlx::query_as!(
+        Category,
+        "SELECT id, name, sort_order FROM categories ORDER BY sort_order"
+    )
+    .fetch_all(pool)
+    .await?;
     Ok(rows)
 }
 
 pub async fn create(pool: &PgPool, name: &str) -> Result<Category, AppError> {
     let row = sqlx::query_as!(
         Category,
-        "INSERT INTO categories (name) VALUES ($1) RETURNING id, name",
+        "INSERT INTO categories (name) VALUES ($1) RETURNING id, name, sort_order",
         name
     )
     .fetch_one(pool)
@@ -24,7 +27,7 @@ pub async fn create(pool: &PgPool, name: &str) -> Result<Category, AppError> {
 pub async fn update(pool: &PgPool, id: Uuid, name: &str) -> Result<Category, AppError> {
     let row = sqlx::query_as!(
         Category,
-        "UPDATE categories SET name = $1 WHERE id = $2 RETURNING id, name",
+        "UPDATE categories SET name = $1 WHERE id = $2 RETURNING id, name, sort_order",
         name,
         id
     )

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "UPDATE categories SET name = $1 WHERE id = $2 RETURNING id, name",
+  "query": "INSERT INTO categories (name) VALUES ($1) RETURNING id, name, sort_order",
   "describe": {
     "columns": [
       {
@@ -12,18 +12,23 @@
         "ordinal": 1,
         "name": "name",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "sort_order",
+        "type_info": "Int4"
       }
     ],
     "parameters": {
       "Left": [
-        "Text",
-        "Uuid"
+        "Text"
       ]
     },
     "nullable": [
       false,
+      false,
       false
     ]
   },
-  "hash": "be2c9a49dccb8b2bf6ffd618018d9f5f8e3fe9006cc4b3dba4744923dd298e52"
+  "hash": "bc8e9bb9752ac3f35a82e5a7d3e1686ef733402d56b000d1e41aff64b024b465"
 }

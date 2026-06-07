@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT id, name, customer_name, address, created_at FROM projects WHERE id = $1",
+  "query": "SELECT id, name, customer_name, address, vat_percent, overhead_percent, show_overhead, qt_number, created_at FROM projects WHERE id = $1",
   "describe": {
     "columns": [
       {
@@ -25,6 +25,26 @@
       },
       {
         "ordinal": 4,
+        "name": "vat_percent",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 5,
+        "name": "overhead_percent",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 6,
+        "name": "show_overhead",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 7,
+        "name": "qt_number",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
         "name": "created_at",
         "type_info": "Timestamptz"
       }
@@ -39,8 +59,12 @@
       false,
       true,
       true,
+      false,
+      false,
+      false,
+      true,
       false
     ]
   },
-  "hash": "71a1bcfd107cefdb12b9366c783e40fcd237facf9421a5347a045d523ebec39e"
+  "hash": "569ba8a94cfe430652266c7515dce29be7728715e8be96932f58574f9c6aa70d"
 }

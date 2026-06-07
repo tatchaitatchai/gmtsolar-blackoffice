@@ -13,7 +13,7 @@ pub async fn list(pool: &PgPool) -> Result<Vec<ProductDetail>, AppError> {
            FROM products p
            JOIN categories c ON c.id = p.category_id
            JOIN brands b ON b.id = p.brand_id
-           ORDER BY p.name"#
+           ORDER BY c.sort_order, p.name"#
     )
     .fetch_all(pool)
     .await?

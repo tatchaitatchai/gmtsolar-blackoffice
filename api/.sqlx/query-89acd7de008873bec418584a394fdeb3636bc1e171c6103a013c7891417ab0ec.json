@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT pi.id, pi.product_id, p.name AS product_name, p.model AS product_model,\n                  p.use_unit, pi.quantity, pi.supplier_price_id,\n                  (SELECT s2.name FROM supplier_prices sp2\n                   JOIN suppliers s2 ON s2.id = sp2.supplier_id\n                   WHERE sp2.id = pi.supplier_price_id) AS supplier_name,\n                  pi.unit_price_snapshot\n           FROM project_items pi\n           JOIN products p ON p.id = pi.product_id\n           WHERE pi.project_id = $1\n           ORDER BY p.name",
+  "query": "SELECT pi.id, pi.product_id, p.name AS product_name, p.model AS product_model,\n                  p.use_unit, pi.quantity, pi.supplier_price_id,\n                  (SELECT s2.name FROM supplier_prices sp2\n                   JOIN suppliers s2 ON s2.id = sp2.supplier_id\n                   WHERE sp2.id = pi.supplier_price_id) AS supplier_name,\n                  pi.unit_price_snapshot, pi.markup_percent, pi.group_id\n           FROM project_items pi\n           JOIN products p ON p.id = pi.product_id\n           JOIN categories c ON c.id = p.category_id\n           WHERE pi.project_id = $1\n           ORDER BY c.sort_order, p.name",
   "describe": {
     "columns": [
       {
@@ -47,6 +47,16 @@
         "ordinal": 8,
         "name": "unit_price_snapshot",
         "type_info": "Numeric"
+      },
+      {
+        "ordinal": 9,
+        "name": "markup_percent",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 10,
+        "name": "group_id",
+        "type_info": "Uuid"
       }
     ],
     "parameters": {
@@ -63,8 +73,10 @@
       false,
       true,
       null,
-      false
+      false,
+      false,
+      true
     ]
   },
-  "hash": "b260f67d1421708367e198efe3e2ee6f8f102577fc2ee04c36582f5918dcb3ad"
+  "hash": "89acd7de008873bec418584a394fdeb3636bc1e171c6103a013c7891417ab0ec"
 }

@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT\n               pi.id       AS item_id,\n               pi.product_id,\n               p.name      AS product_name,\n               p.model     AS product_model,\n               pi.quantity,\n               p.use_unit,\n               p.units_per_purchase,\n               (SELECT sp2.price\n                FROM supplier_prices sp2\n                WHERE sp2.product_id = pi.product_id\n                ORDER BY CASE WHEN p.units_per_purchase IS NOT NULL\n                              THEN sp2.price / p.units_per_purchase\n                              ELSE sp2.price\n                         END ASC\n                LIMIT 1)   AS cheapest_price,\n               (SELECT sp2.supplier_id\n                FROM supplier_prices sp2\n                WHERE sp2.product_id = pi.product_id\n                ORDER BY CASE WHEN p.units_per_purchase IS NOT NULL\n                              THEN sp2.price / p.units_per_purchase\n                              ELSE sp2.price\n                         END ASC\n                LIMIT 1)   AS cheapest_supplier_id,\n               (SELECT s2.name\n                FROM supplier_prices sp2\n                JOIN suppliers s2 ON s2.id = sp2.supplier_id\n                WHERE sp2.product_id = pi.product_id\n                ORDER BY CASE WHEN p.units_per_purchase IS NOT NULL\n                              THEN sp2.price / p.units_per_purchase\n                              ELSE sp2.price\n                         END ASC\n                LIMIT 1)   AS cheapest_supplier_name\n           FROM package_items pi\n           JOIN products p ON p.id = pi.product_id\n           JOIN categories c ON c.id = p.category_id\n           WHERE pi.package_id = $1\n           ORDER BY c.sort_order, p.name",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "item_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "product_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "product_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "product_model",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "quantity",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 5,
+        "name": "use_unit",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "units_per_purchase",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 7,
+        "name": "cheapest_price",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 8,
+        "name": "cheapest_supplier_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 9,
+        "name": "cheapest_supplier_name",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "f3403ff1b85cfa0ca9a8405d8a0b6c7ea2e0ce678855550f82960fb6f5c72eda"
+}

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT pi.id, pi.product_id, p.name AS product_name, p.model AS product_model,\n                  p.use_unit, pi.quantity\n           FROM package_items pi\n           JOIN products p ON p.id = pi.product_id\n           WHERE pi.package_id = $1\n           ORDER BY p.name",
+  "query": "SELECT pi.id, pi.product_id, p.name AS product_name, p.model AS product_model,\n                  p.use_unit, pi.quantity\n           FROM package_items pi\n           JOIN products p ON p.id = pi.product_id\n           JOIN categories c ON c.id = p.category_id\n           WHERE pi.package_id = $1\n           ORDER BY c.sort_order, p.name",
   "describe": {
     "columns": [
       {
@@ -48,5 +48,5 @@
       false
     ]
   },
-  "hash": "2cff54109f721e863fa69aab93a0b99f89c51dc5e49f0146957d6a182e29dcc3"
+  "hash": "b8fc2c7bde6bda338c33bbbcd580111d68c5a4b09a65643453ae10513429c990"
 }

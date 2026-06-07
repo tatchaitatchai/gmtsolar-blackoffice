@@ -30,7 +30,11 @@ pub fn router(state: AppState) -> Router {
         .route("/api/projects/{id}", get(handlers::project::get).put(handlers::project::update).delete(handlers::project::delete))
         .route("/api/projects/{id}/items", post(handlers::project::add_item))
         .route("/api/projects/{id}/cost", get(handlers::project::cost))
-        .route("/api/project_items/{id}", delete(handlers::project::remove_item))
+        .route("/api/projects/{id}/groups", get(handlers::project::list_groups).post(handlers::project::create_group))
+        .route("/api/projects/{id}/import-package", post(handlers::project::import_package))
+        .route("/api/projects/{id}/pricing", put(handlers::project::update_pricing))
+        .route("/api/project_items/{id}", delete(handlers::project::remove_item).put(handlers::project::update_item_meta))
+        .route("/api/project_groups/{id}", put(handlers::project::update_group).delete(handlers::project::delete_group))
         .route_layer(middleware::from_fn_with_state(state.clone(), auth::jwt_middleware));
 
     Router::new()
